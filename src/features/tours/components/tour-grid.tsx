@@ -1,8 +1,8 @@
 import Image from "next/image";
 import Link from "next/link";
-import type { TourCard } from "@/types/tour";
+import type { TourCard as TourCardType } from "@/types/tour";
 
-export function TourCard({ tour }: { tour: TourCard }) {
+export function TourCard({ tour }: { tour: TourCardType }) {
   return (
     <Link
       href={`/tours/${tour.slug}`}
@@ -50,7 +50,7 @@ export function TourCardSkeleton() {
   );
 }
 
-export function TourGrid({ tours }: { tours: TourCard[] }) {
+export function TourGrid({ tours }: { tours: TourCardType[] }) {
   return (
     <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
       {tours.map((tour) => (
