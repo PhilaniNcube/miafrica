@@ -2,22 +2,28 @@
 
 import { useActionState } from "react";
 import { createInquiry } from "@/features/inquiries/inquiries-actions";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
+import { Button } from "@/components/ui/button";
+import { Label } from "@/components/ui/label";
+import { CheckCircle2, AlertCircle, Send } from "lucide-react";
 
 export function InquiryForm({
   tourId,
   tourTitle,
 }: {
-  tourId: string;
-  tourTitle: string;
+  tourId?: string;
+  tourTitle?: string;
 }) {
   const [state, formAction, pending] = useActionState(createInquiry, null);
 
   if (state && state.ok) {
     return (
-      <div className="mt-6 rounded-xl border border-green-200 bg-green-50 p-6 text-center">
-        <p className="text-lg font-semibold text-green-800">Thank you! Your inquiry has been received.</p>
-        <p className="mt-2 text-sm text-green-700">
-          We&apos;ll be in touch shortly about the {tourTitle} tour.
+      <div className="mt-6 rounded-xl border border-emerald-200 bg-emerald-50 p-6 text-center">
+        <CheckCircle2 className="mx-auto h-10 w-10 text-emerald-600 mb-2" />
+        <p className="text-lg font-serif font-bold text-emerald-900">Thank you! Your inquiry has been received.</p>
+        <p className="mt-2 text-sm text-emerald-700">
+          Our Cape Town travel specialists will be in touch shortly {tourTitle ? `about ${tourTitle}` : "regarding your journey"}.
         </p>
       </div>
     );
@@ -25,90 +31,104 @@ export function InquiryForm({
 
   return (
     <form action={formAction} className="mt-6 space-y-4">
-      <input type="hidden" name="tourId" value={tourId} />
+      {tourId && <input type="hidden" name="tourId" value={tourId} />}
+
       <div className="grid gap-4 sm:grid-cols-2">
-        <div>
-          <label htmlFor="name" className="block text-sm font-medium text-stone-700">
+        <div className="space-y-1.5">
+          <Label htmlFor="name" className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
             Full Name *
-          </label>
-          <input
+          </Label>
+          <Input
             id="name"
             name="name"
             type="text"
             required
-            className="mt-1 block w-full rounded-lg border border-stone-300 px-3 py-2 text-stone-900 shadow-sm focus:border-amber-500 focus:outline-none focus:ring-1 focus:ring-amber-500"
+            placeholder="Jane Doe"
+            className="bg-white border-border focus:ring-2 focus:ring-primary"
           />
         </div>
-        <div>
-          <label htmlFor="email" className="block text-sm font-medium text-stone-700">
-            Email *
-          </label>
-          <input
+        <div className="space-y-1.5">
+          <Label htmlFor="email" className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+            Email Address *
+          </Label>
+          <Input
             id="email"
             name="email"
             type="email"
             required
-            className="mt-1 block w-full rounded-lg border border-stone-300 px-3 py-2 text-stone-900 shadow-sm focus:border-amber-500 focus:outline-none focus:ring-1 focus:ring-amber-500"
+            placeholder="jane.doe@example.com"
+            className="bg-white border-border focus:ring-2 focus:ring-primary"
           />
         </div>
       </div>
-      <div className="grid gap-4 sm:grid-cols-2">
-        <div>
-          <label htmlFor="phone" className="block text-sm font-medium text-stone-700">
-            Phone
-          </label>
-          <input
+
+      <div className="grid gap-4">
+        <div className="space-y-1.5">
+          <Label htmlFor="phone" className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+            Phone Number
+          </Label>
+          <Input
             id="phone"
             name="phone"
             type="tel"
-            className="mt-1 block w-full rounded-lg border border-stone-300 px-3 py-2 text-stone-900 shadow-sm focus:border-amber-500 focus:outline-none focus:ring-1 focus:ring-amber-500"
+            placeholder="+27 82 123 4567"
+            className="bg-white border-border focus:ring-2 focus:ring-primary"
           />
         </div>
-        <div>
-          <label htmlFor="travellerCount" className="block text-sm font-medium text-stone-700">
+        <div className="space-y-1.5">
+          <Label htmlFor="travellerCount" className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
             Number of Travellers
-          </label>
-          <input
+          </Label>
+          <Input
             id="travellerCount"
             name="travellerCount"
             type="number"
             min={1}
-            className="mt-1 block w-full rounded-lg border border-stone-300 px-3 py-2 text-stone-900 shadow-sm focus:border-amber-500 focus:outline-none focus:ring-1 focus:ring-amber-500"
+            defaultValue={2}
+            className="bg-white border-border focus:ring-2 focus:ring-primary"
           />
         </div>
       </div>
-      <div>
-        <label htmlFor="preferredDate" className="block text-sm font-medium text-stone-700">
-          Preferred Date
-        </label>
-        <input
+
+      <div className="space-y-1.5">
+        <Label htmlFor="preferredDate" className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+          Preferred Travel Date
+        </Label>
+        <Input
           id="preferredDate"
           name="preferredDate"
           type="date"
-          className="mt-1 block w-full rounded-lg border border-stone-300 px-3 py-2 text-stone-900 shadow-sm focus:border-amber-500 focus:outline-none focus:ring-1 focus:ring-amber-500"
+          className="bg-white border-border focus:ring-2 focus:ring-primary"
         />
       </div>
-      <div>
-        <label htmlFor="message" className="block text-sm font-medium text-stone-700">
-          Message
-        </label>
-        <textarea
+
+      <div className="space-y-1.5">
+        <Label htmlFor="message" className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+          Special Requests / Message
+        </Label>
+        <Textarea
           id="message"
           name="message"
           rows={4}
-          className="mt-1 block w-full rounded-lg border border-stone-300 px-3 py-2 text-stone-900 shadow-sm focus:border-amber-500 focus:outline-none focus:ring-1 focus:ring-amber-500"
+          placeholder="Tell us about your preferences, dietary requirements, or target destinations..."
+          className="bg-white border-border focus:ring-2 focus:ring-primary"
         />
       </div>
+
       {state && !state.ok && (
-        <p className="text-sm text-red-600">{state.error}</p>
+        <div className="flex items-center gap-2 p-3 rounded bg-destructive/10 text-destructive text-sm">
+          <AlertCircle className="h-4 w-4 shrink-0" />
+          <span>{state.error}</span>
+        </div>
       )}
-      <button
+
+      <Button
         type="submit"
         disabled={pending}
-        className="w-full rounded-lg bg-amber-600 px-6 py-3 font-semibold text-white transition-colors hover:bg-amber-700 disabled:opacity-50"
+        className="w-full bg-primary hover:bg-primary/90 text-white font-semibold uppercase tracking-wider py-6 rounded-md shadow-md gap-2"
       >
-        {pending ? "Sending..." : "Submit Inquiry"}
-      </button>
+        {pending ? "Submitting Inquiry..." : <>Send Inquiry <Send className="h-4 w-4" /></>}
+      </Button>
     </form>
   );
 }
