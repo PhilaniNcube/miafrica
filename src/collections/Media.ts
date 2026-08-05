@@ -105,7 +105,10 @@ export const Media: CollectionConfig = {
   hooks: {
     beforeChange: [
       ({ data, req }) => {
-        const file = (req as { file?: { mimeType?: string } }).file
+        const file = (req as { file?: { mimeType?: string; size?: number } }).file
+        if (file?.size && file.size > 10 * 1024 * 1024) {
+          throw new Error('Uploaded file exceeds the 10MB maximum size limit.')
+        }
         if (file?.mimeType) {
           if (file.mimeType.startsWith('video/')) {
             data.mediaType = 'video'

@@ -4,7 +4,12 @@ import { withPayload } from "@payloadcms/next/withPayload";
 const nextConfig: NextConfig = {
   cacheComponents: true,
   typedRoutes: true,
-   partialPrefetching: true,
+  partialPrefetching: true,
+  experimental: {
+    serverActions: {
+      bodySizeLimit: "10mb",
+    },
+  },
   images: {
     remotePatterns: [
       {
