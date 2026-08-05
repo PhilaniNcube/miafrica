@@ -119,13 +119,13 @@ export const Media: CollectionConfig = {
     beforeChange: [
       async ({ data, req }) => {
         const file = (req as { file?: { data?: Buffer; mimeType?: string; size?: number } }).file
-        if (file?.size && file.size > 10 * 1024 * 1024) {
-          throw new Error('Uploaded file exceeds the 10MB maximum size limit.')
+        if (file?.size && file.size > 50 * 1024 * 1024) {
+          throw new Error('Uploaded file exceeds the 50MB maximum size limit.')
         }
 
         if (file?.data && file.mimeType?.startsWith('image/')) {
-          // Pre-compress images larger than 2MB using sharp before saving
-          if (file.size && file.size > 2 * 1024 * 1024) {
+          // Pre-compress images larger than 1MB using sharp before saving
+          if (file.size && file.size > 1 * 1024 * 1024) {
             try {
               const compressedBuffer = await sharp(file.data)
                 .resize({ width: 2560, height: 2560, fit: 'inside', withoutEnlargement: true })
