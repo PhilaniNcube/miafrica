@@ -10,16 +10,44 @@ import type { Tour, TourCard } from '@/types/tour'
 
 const payload = await getPayload({ config: configPromise })
 
+const R2_PUBLIC_BASE = process.env.R2_PUBLIC_URL || 'https://pub-6b436ff2d3c345dcb470af66f325dda3.r2.dev'
+
+function resolveMediaUrl(rawUrl?: string, filename?: string): string {
+  if (!rawUrl && filename) {
+    return `${R2_PUBLIC_BASE}/${encodeURIComponent(filename)}`
+  }
+  if (!rawUrl) return ''
+
+  if (rawUrl.startsWith('http://') || rawUrl.startsWith('https://')) {
+    return rawUrl
+  }
+
+  if (rawUrl.startsWith('/api/media/file/')) {
+    const file = rawUrl.replace('/api/media/file/', '')
+    return `${R2_PUBLIC_BASE}/${file}`
+  }
+
+  if (rawUrl.startsWith('/')) {
+    return `${R2_PUBLIC_BASE}${rawUrl}`
+  }
+
+  return `${R2_PUBLIC_BASE}/${rawUrl}`
+}
+
 function toMediaRef(media: unknown): Tour['heroMedia'] | null {
   if (!media || typeof media !== 'object') return undefined
   const m = media as Record<string, unknown>
+  const rawUrl = (m.url as string) || ((m.sizes as Record<string, { url?: string }>)?.card?.url)
+  const filename = m.filename as string | undefined
+  const finalUrl = resolveMediaUrl(rawUrl, filename)
+
   return {
     id: String(m.id),
-    url: (m.url as string) || ((m.sizes as Record<string, { url?: string }>)?.card?.url),
+    url: finalUrl,
     alt: (m.alt as string) || '',
     caption: m.caption as string | undefined,
     mediaType: m.mediaType as 'image' | 'video' | undefined,
-    filename: m.filename as string | undefined,
+    filename,
     mimeType: m.mimeType as string | undefined,
     width: m.width as number | undefined,
     height: m.height as number | undefined,
