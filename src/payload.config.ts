@@ -2,6 +2,8 @@ import { buildConfig } from 'payload'
 import { lexicalEditor } from '@payloadcms/richtext-lexical'
 import { sqliteAdapter } from '@payloadcms/db-sqlite'
 import { cloudStoragePlugin } from '@payloadcms/plugin-cloud-storage'
+import { resendAdapter } from '@payloadcms/email-resend'
+import sharp from 'sharp'
 import { Users } from './collections/Users'
 import { Media } from './collections/Media'
 import { Locations } from './collections/Locations'
@@ -10,6 +12,12 @@ import { Inquiries } from './collections/Inquiries'
 import { r2Adapter } from './lib/storage/r2Adapter'
 
 export default buildConfig({
+  sharp,
+  email: resendAdapter({
+    defaultFromAddress: process.env.RESEND_FROM_EMAIL || 'info@miafrica.co.za',
+    defaultFromName: 'MiAfrica Concierge',
+    apiKey: process.env.RESEND_API_KEY || '',
+  }),
   secret: process.env.PAYLOAD_SECRET || 'dev-secret-change-me',
   admin: {
     user: 'users',

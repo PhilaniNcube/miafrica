@@ -19,6 +19,7 @@
     "@base-ui/react": "^1.7.0",
     "@libsql/client": "^0.17.4",
     "@payloadcms/db-sqlite": "^3.87.0",
+    "@payloadcms/email-resend": "3.87.0",
     "@payloadcms/next": "^3.87.0",
     "@payloadcms/plugin-cloud-storage": "^3.87.0",
     "@payloadcms/richtext-lexical": "^3.87.0",
