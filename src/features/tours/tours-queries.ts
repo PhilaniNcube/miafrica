@@ -72,8 +72,19 @@ async function lexicalToHtml(data: unknown, payloadInstance: any): Promise<strin
   }
 }
 
+const DEFAULT_SLUGS = [
+  'garden-route',
+  'cape-town-city-tour',
+  'township-tour',
+  'winelands',
+  'goodhope',
+  'safari',
+  'hiking',
+  'whale-watching',
+]
+
 async function toTour(row: unknown, payloadInstance: any): Promise<Tour> {
-  const r = row as Record<string, unknown>
+  const r = (row || {}) as Record<string, unknown>
   const [overview, practicalInformation, seasonalInformation] = await Promise.all([
     lexicalToHtml(r.overview, payloadInstance),
     lexicalToHtml(r.practicalInformation, payloadInstance),
@@ -81,59 +92,68 @@ async function toTour(row: unknown, payloadInstance: any): Promise<Tour> {
   ])
 
   const itinerary = await Promise.all(
-    ((r.itinerary as Array<Record<string, unknown>>) || []).map(async (item) => ({
-      ...item,
-      summary: await lexicalToHtml(item.summary, payloadInstance),
-    })),
+    (Array.isArray(r.itinerary) ? r.itinerary : [])
+      .filter((item): item is Record<string, unknown> => Boolean(item && typeof item === 'object'))
+      .map(async (item) => ({
+        ...item,
+        summary: await lexicalToHtml(item.summary, payloadInstance),
+        activities: Array.isArray(item.activities) ? item.activities : [],
+      })),
   )
 
   const optionalExtras = await Promise.all(
-    ((r.optionalExtras as Array<Record<string, unknown>>) || []).map(async (extra) => ({
-      ...extra,
-      description: await lexicalToHtml(extra.description, payloadInstance),
-    })),
+    (Array.isArray(r.optionalExtras) ? r.optionalExtras : [])
+      .filter((extra): extra is Record<string, unknown> => Boolean(extra && typeof extra === 'object'))
+      .map(async (extra) => ({
+        ...extra,
+        description: await lexicalToHtml(extra.description, payloadInstance),
+      })),
   )
 
-  return {
-    id: String(r.id),
-    title: r.title as string,
-    slug: r.slug as string,
-    shortDescription: r.shortDescription as string,
-    heroMedia: toMediaRef(r.heroMedia) || undefined,
-    gallery: ((r.gallery as Array<Record<string, unknown>>) || []).map((g) => ({
+  const gallery = (Array.isArray(r.gallery) ? r.gallery : [])
+    .filter((g): g is Record<string, unknown> => Boolean(g && typeof g === 'object'))
+    .map((g) => ({
       media: toMediaRef(g.media) || { id: '', url: '', alt: '' },
       caption: g.caption as string | undefined,
-    })),
-    tourType: r.tourType as Tour['tourType'],
+    }))
+
+  return {
+    id: String(r.id || ''),
+    title: (r.title as string) || '',
+    slug: (r.slug as string) || '',
+    shortDescription: (r.shortDescription as string) || '',
+    heroMedia: toMediaRef(r.heroMedia) || undefined,
+    gallery,
+    tourType: (r.tourType as Tour['tourType']) || 'day-tour',
     durationLabel: r.durationLabel as string | undefined,
     overview,
     itinerary: itinerary as Tour['itinerary'],
-    highlights: (r.highlights as Tour['highlights']) || [],
-    included: (r.included as Tour['included']) || [],
-    notIncluded: (r.notIncluded as Tour['notIncluded']) || [],
+    highlights: (Array.isArray(r.highlights) ? r.highlights : []) as Tour['highlights'],
+    included: (Array.isArray(r.included) ? r.included : []) as Tour['included'],
+    notIncluded: (Array.isArray(r.notIncluded) ? r.notIncluded : []) as Tour['notIncluded'],
     practicalInformation,
     seasonalInformation,
     optionalExtras: optionalExtras as Tour['optionalExtras'],
-    status: r.status as Tour['status'],
-    featured: r.featured as boolean,
-    sortOrder: r.sortOrder as number,
+    status: (r.status as Tour['status']) || 'published',
+    featured: Boolean(r.featured),
+    sortOrder: (r.sortOrder as number) || 0,
     seo: r.seo as Tour['seo'] | undefined,
   }
 }
 
 function toTourCard(row: unknown): TourCard {
-  const r = row as Record<string, unknown>
+  const r = (row || {}) as Record<string, unknown>
   const hero = toMediaRef(r.heroMedia)
   return {
-    id: String(r.id),
-    title: r.title as string,
-    slug: r.slug as string,
-    shortDescription: r.shortDescription as string,
+    id: String(r.id || ''),
+    title: (r.title as string) || '',
+    slug: (r.slug as string) || '',
+    shortDescription: (r.shortDescription as string) || '',
     heroMedia: hero ? { url: hero.url || '', alt: hero.alt || '' } : undefined,
-    tourType: r.tourType as TourCard['tourType'],
+    tourType: (r.tourType as TourCard['tourType']) || 'day-tour',
     durationLabel: r.durationLabel as string | undefined,
-    featured: r.featured as boolean,
-    sortOrder: r.sortOrder as number,
+    featured: Boolean(r.featured),
+    sortOrder: (r.sortOrder as number) || 0,
   }
 }
 
@@ -146,6 +166,7 @@ export const getPublishedTours = cache(async (): Promise<TourCard[]> => {
         status: { equals: 'published' },
       },
       sort: 'sortOrder',
+      limit: 100,
       depth: 2,
     })
     return result.docs.map((doc) => toTourCard(doc as unknown))
@@ -203,13 +224,14 @@ export const getTourSlugs = cache(async (): Promise<string[]> => {
       where: {
         status: { equals: 'published' },
       },
-      select: { slug: true },
-      limit: 0,
+      limit: 100,
     })
-    const slugs = result.docs.map((doc) => (doc as Record<string, unknown>).slug as string)
-    return slugs.length > 0 ? slugs : ['__placeholder__']
+    const slugs = result.docs
+      .map((doc) => (doc as unknown as Record<string, unknown>).slug as string)
+      .filter(Boolean)
+    return slugs.length > 0 ? slugs : DEFAULT_SLUGS
   } catch {
-    return ['__placeholder__']
+    return DEFAULT_SLUGS
   }
 })
 
@@ -221,14 +243,13 @@ export const getSitemapTours = cache(async (): Promise<Array<{ slug: string; upd
       where: {
         status: { equals: 'published' },
       },
-      select: { slug: true, updatedAt: true },
-      limit: 0,
+      limit: 100,
     })
     return result.docs.map((doc) => ({
-      slug: (doc as Record<string, unknown>).slug as string,
-      updatedAt: (doc as Record<string, unknown>).updatedAt as string | undefined,
+      slug: (doc as unknown as Record<string, unknown>).slug as string,
+      updatedAt: (doc as unknown as Record<string, unknown>).updatedAt as string | undefined,
     }))
   } catch {
-    return []
+    return DEFAULT_SLUGS.map((slug) => ({ slug }))
   }
 })
