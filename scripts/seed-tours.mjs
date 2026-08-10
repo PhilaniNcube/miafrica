@@ -1,22 +1,65 @@
-import { NextResponse } from 'next/server'
-import configPromise from '@payload-config'
-import { convertHTMLToLexical, defaultEditorConfig, sanitizeServerEditorConfig } from '@payloadcms/richtext-lexical'
+process.env.PAYLOAD_DISABLE_ENV_LOADING = 'true'
+
+import { readFileSync, existsSync } from 'node:fs'
+import { pathToFileURL } from 'node:url'
+import { createRequire } from 'node:module'
+import { resolve, dirname, join } from 'node:path'
 import { JSDOM } from 'jsdom'
 
-let sanitizedConfig: Awaited<ReturnType<typeof sanitizeServerEditorConfig>> | undefined
+const projectRoot = resolve(process.cwd())
+const require = createRequire(resolve(projectRoot, 'package.json'))
 
-async function getSanitizedConfig() {
-  if (!sanitizedConfig) {
-    const { getPayload } = await import('payload')
-    const payloadInstance = await getPayload({ config: configPromise })
-    sanitizedConfig = await sanitizeServerEditorConfig(defaultEditorConfig, payloadInstance.config)
+import Module from 'node:module'
+
+const originalRequire = Module.prototype.require
+Module.prototype.require = function (id) {
+  if (id === '@next/env') {
+    return {
+      loadEnvConfig: () => ({ combinedEnv: process.env }),
+      default: {
+        loadEnvConfig: () => ({ combinedEnv: process.env }),
+      },
+    }
   }
-  return sanitizedConfig
+  return originalRequire.apply(this, arguments)
 }
 
-async function htmlToLexical(html: string) {
-  const editorConfig = await getSanitizedConfig()
-  return convertHTMLToLexical({ editorConfig, html, JSDOM: JSDOM as any })
+// Manually load .env files
+for (const envFile of ['.env.production', '.env']) {
+  const envPath = resolve(projectRoot, envFile)
+  if (existsSync(envPath)) {
+    const envContent = readFileSync(envPath, 'utf-8')
+    for (const rawLine of envContent.split('\n')) {
+      const line = rawLine.replace(/\r/g, '').trim()
+      const match = line.match(/^([^#=\s]+)\s*=\s*(.*)$/)
+      if (match) {
+        process.env[match[1]] = match[2].trim()
+      }
+    }
+  }
+}
+
+process.env.PAYLOAD_DB_PUSH = 'true'
+console.log('Seeding against DATABASE_URL:', process.env.DATABASE_URL)
+
+// Resolve payload & richtext-lexical
+const { getPayload } = await import('payload')
+const { convertHTMLToLexical, defaultEditorConfig, sanitizeServerEditorConfig } = await import('@payloadcms/richtext-lexical')
+
+const configPath = resolve(projectRoot, 'src/payload.config.ts')
+const configModule = await import(pathToFileURL(configPath).toString())
+let config = configModule.default || configModule
+if (typeof config === 'function') {
+  config = await config()
+} else if (config && typeof config.then === 'function') {
+  config = await config
+}
+
+const payload = await getPayload({ config })
+const sanitizedConfig = await sanitizeServerEditorConfig(defaultEditorConfig, payload.config)
+
+async function htmlToLexical(html) {
+  return convertHTMLToLexical({ editorConfig: sanitizedConfig, html, JSDOM })
 }
 
 const targetTours = [
@@ -217,75 +260,68 @@ const targetTours = [
   },
 ]
 
-export async function GET() {
-  try {
-    const { getPayload } = await import('payload')
-    const payload = await getPayload({ config: configPromise })
+console.log('Seeding garden-route and whale-watching with Lexical HTML conversion...')
 
-    const logs: string[] = []
-    logs.push('Starting targeted seed for garden-route and whale-watching...')
+for (const tour of targetTours) {
+  const existing = await payload.find({
+    collection: 'tours',
+    where: {
+      slug: { equals: tour.slug },
+    },
+    limit: 10,
+  })
 
-    for (const tour of targetTours) {
-      const existing = await payload.find({
-        collection: 'tours',
-        where: {
-          slug: { equals: tour.slug },
-        },
-        limit: 10,
-      })
-
-      for (const doc of existing.docs) {
-        logs.push(`  Deleting existing tour: ${tour.slug} (ID: ${doc.id})`)
-        await payload.delete({
-          collection: 'tours',
-          id: doc.id as any,
-        })
-      }
-
-      const tourData: Record<string, unknown> = { ...tour }
-
-      if (typeof tourData.overview === 'string') {
-        tourData.overview = await htmlToLexical(tourData.overview as string)
-      }
-      if (typeof tourData.practicalInformation === 'string') {
-        tourData.practicalInformation = await htmlToLexical(tourData.practicalInformation as string)
-      }
-      if (typeof tourData.seasonalInformation === 'string') {
-        tourData.seasonalInformation = await htmlToLexical(tourData.seasonalInformation as string)
-      }
-
-      if (Array.isArray(tourData.itinerary)) {
-        tourData.itinerary = await Promise.all(
-          (tourData.itinerary as Array<Record<string, unknown>>).map(async (item) => {
-            if (typeof item.summary === 'string') {
-              return { ...item, summary: await htmlToLexical(item.summary as string) }
-            }
-            return item
-          }),
-        )
-      }
-
-      if (Array.isArray(tourData.optionalExtras)) {
-        tourData.optionalExtras = await Promise.all(
-          (tourData.optionalExtras as Array<Record<string, unknown>>).map(async (extra) => {
-            if (typeof extra.description === 'string') {
-              return { ...extra, description: await htmlToLexical(extra.description as string) }
-            }
-            return extra
-          }),
-        )
-      }
-
-      logs.push(`  Creating tour with Lexical content: ${tour.title} (${tour.slug})`)
-      await payload.create({
-        collection: 'tours',
-        data: tourData as any,
-      })
-    }
-
-    logs.push('Targeted seed complete for garden-route and whale-watching!')
-    return NextResponse.json({ ok: true, logs })
-  } catch (error: any) {
-    return NextResponse.json({ ok: false, error: error?.message || String(error) }, { status: 500 })
+  for (const doc of existing.docs) {
+    console.log(`  Deleting existing record: ${tour.slug} (ID: ${doc.id})`)
+    await payload.delete({
+      collection: 'tours',
+      id: doc.id,
+    })
   }
+
+  const tourData = { ...tour }
+
+  if (typeof tourData.overview === 'string') {
+    tourData.overview = await htmlToLexical(tourData.overview)
+  }
+  if (typeof tourData.practicalInformation === 'string') {
+    tourData.practicalInformation = await htmlToLexical(tourData.practicalInformation)
+  }
+  if (typeof tourData.seasonalInformation === 'string') {
+    tourData.seasonalInformation = await htmlToLexical(tourData.seasonalInformation)
+  }
+
+  if (Array.isArray(tourData.itinerary)) {
+    tourData.itinerary = await Promise.all(
+      tourData.itinerary.map(async (item) => {
+        if (typeof item.summary === 'string') {
+          return { ...item, summary: await htmlToLexical(item.summary) }
+        }
+        return item
+      }),
+    )
+  }
+
+  if (Array.isArray(tourData.optionalExtras)) {
+    tourData.optionalExtras = await Promise.all(
+      tourData.optionalExtras.map(async (extra) => {
+        if (typeof extra.description === 'string') {
+          return { ...extra, description: await htmlToLexical(extra.description) }
+        }
+        return extra
+      }),
+    )
+  }
+
+  tourData._status = 'published'
+
+  console.log(`  Creating tour in Payload: ${tour.title} (${tour.slug})`)
+  await payload.create({
+    collection: 'tours',
+    data: tourData,
+    draft: false,
+  })
 }
+
+console.log('Targeted seeding complete for garden-route and whale-watching!')
+process.exit(0)

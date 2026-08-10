@@ -1,9 +1,3 @@
-import dotenv from 'dotenv'
-import path from 'path'
-
-dotenv.config({ path: path.resolve(process.cwd(), '.env.production') })
-dotenv.config({ path: path.resolve(process.cwd(), '.env') })
-
 import configPromise from '../payload.config'
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
