@@ -28,7 +28,7 @@ async function getSanitizedConfig() {
 
 async function htmlToLexical(html: string) {
   const editorConfig = await getSanitizedConfig()
-  return convertHTMLToLexical({ editorConfig, html, JSDOM })
+  return convertHTMLToLexical({ editorConfig, html, JSDOM: JSDOM as any })
 }
 
 const tours = [

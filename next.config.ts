@@ -34,6 +34,49 @@ const nextConfig: NextConfig = {
       },
     ],
   },
+  async headers() {
+    return [
+      {
+        source: "/admin/:path*",
+        headers: [
+          {
+            key: "Cache-Control",
+            value: "no-store, no-cache, must-revalidate, proxy-revalidate, max-age=0",
+          },
+          {
+            key: "Pragma",
+            value: "no-cache",
+          },
+        ],
+      },
+      {
+        source: "/admin",
+        headers: [
+          {
+            key: "Cache-Control",
+            value: "no-store, no-cache, must-revalidate, proxy-revalidate, max-age=0",
+          },
+          {
+            key: "Pragma",
+            value: "no-cache",
+          },
+        ],
+      },
+      {
+        source: "/api/:path*",
+        headers: [
+          {
+            key: "Cache-Control",
+            value: "no-store, no-cache, must-revalidate, proxy-revalidate, max-age=0",
+          },
+          {
+            key: "Pragma",
+            value: "no-cache",
+          },
+        ],
+      },
+    ];
+  },
 };
 
 export default withPayload(nextConfig);
