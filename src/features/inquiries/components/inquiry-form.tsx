@@ -82,7 +82,7 @@ export function InquiryForm({
         </div>
       </div>
 
-      <div className="grid gap-4 sm:grid-cols-2">
+      <div className="grid gap-4 sm:grid-cols-1">
         <div className="space-y-1.5">
           <Label htmlFor="phone" className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
             Phone Number
