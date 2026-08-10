@@ -1,4 +1,5 @@
 import { GoogleTagManager as NextGoogleTagManager } from "@next/third-parties/google";
+import { GTMPageView } from "./gtm-page-view";
 
 export function GoogleTagManager() {
   const gtmId = process.env.NEXT_PUBLIC_GTM_ID || "GTM-XXXXXXX";
@@ -7,5 +8,10 @@ export function GoogleTagManager() {
     return null;
   }
 
-  return <NextGoogleTagManager gtmId={gtmId} />;
+  return (
+    <>
+      <NextGoogleTagManager gtmId={gtmId} />
+      <GTMPageView />
+    </>
+  );
 }

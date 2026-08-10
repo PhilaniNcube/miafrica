@@ -1,6 +1,7 @@
 "use client";
 
-import { useActionState } from "react";
+import { useActionState, useEffect } from "react";
+import { sendGTMEvent } from "@next/third-parties/google";
 import { createInquiry } from "@/features/inquiries/inquiries-actions";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -16,6 +17,18 @@ export function InquiryForm({
   tourTitle?: string;
 }) {
   const [state, formAction, pending] = useActionState(createInquiry, null);
+
+  useEffect(() => {
+    if (state?.ok) {
+      sendGTMEvent({
+        event: "form_submission",
+        form_id: "inquiry_form",
+        form_name: "Tour Inquiry Form",
+        tour_id: tourId || "general",
+        tour_title: tourTitle || "General Inquiry",
+      });
+    }
+  }, [state, tourId, tourTitle]);
 
   if (state && state.ok) {
     return (
