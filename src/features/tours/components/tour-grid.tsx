@@ -50,7 +50,7 @@ export function TourCard({ tour }: { tour: TourCardType }) {
           <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
             {tour.featured ? "Featured Experience" : "Bespoke Tour"}
           </span>
-          <Link href={`/tours/${tour.slug}`}>
+          <Link href={`/tours/${tour.slug}` as any} prefetch={true}>
             <Button size="sm" variant="outline" className="group-hover:bg-primary group-hover:text-white transition-colors gap-1 text-xs">
               View Tour <ArrowRight className="h-3.5 w-3.5 ml-1 transition-transform group-hover:translate-x-1" />
             </Button>
