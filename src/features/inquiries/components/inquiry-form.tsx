@@ -6,7 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
-import { CheckCircle2, AlertCircle, Send } from "lucide-react";
+import { CheckCircle2, AlertCircle, Send, Compass } from "lucide-react";
 
 export function InquiryForm({
   tourId,
@@ -32,6 +32,13 @@ export function InquiryForm({
   return (
     <form action={formAction} className="mt-6 space-y-4">
       {tourId && <input type="hidden" name="tourId" value={tourId} />}
+
+      {tourTitle && (
+        <div className="flex items-center gap-2 p-3 bg-primary/5 border border-primary/20 rounded-lg text-primary text-xs font-semibold uppercase tracking-wider">
+          <Compass className="h-4 w-4 shrink-0 text-secondary" />
+          <span>Inquiring for: {tourTitle}</span>
+        </div>
+      )}
 
       <div className="grid gap-4 sm:grid-cols-2">
         <div className="space-y-1.5">
@@ -62,7 +69,7 @@ export function InquiryForm({
         </div>
       </div>
 
-      <div className="grid gap-4">
+      <div className="grid gap-4 sm:grid-cols-2">
         <div className="space-y-1.5">
           <Label htmlFor="phone" className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
             Phone Number

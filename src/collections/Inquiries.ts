@@ -19,7 +19,7 @@ export const Inquiries: CollectionConfig = {
       name: 'tour',
       type: 'relationship',
       relationTo: 'tours',
-      required: true,
+      required: false,
     },
     {
       name: 'name',
