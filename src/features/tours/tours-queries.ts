@@ -8,7 +8,9 @@ import type { Tour, TourCard } from '@/types/tour'
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
-const payload = await getPayload({ config: configPromise })
+const getPayloadClient = cache(async () => {
+  return await getPayload({ config: configPromise })
+})
 
 const R2_PUBLIC_BASE = process.env.R2_PUBLIC_URL || 'https://pub-6b436ff2d3c345dcb470af66f325dda3.r2.dev'
 
@@ -54,13 +56,15 @@ function toMediaRef(media: unknown): Tour['heroMedia'] | null {
   }
 }
 
-async function lexicalToHtml(data: unknown): Promise<string | undefined> {
-  if (!data || typeof data !== 'object') return undefined
+async function lexicalToHtml(data: unknown, payloadInstance: any): Promise<string | undefined> {
+  if (!data) return undefined
+  if (typeof data === 'string') return data
+  if (typeof data !== 'object') return undefined
   try {
     const html = await convertLexicalToHTML({
       converters: defaultHTMLConverters,
       data: data as any,
-      payload,
+      payload: payloadInstance,
     })
     return html
   } catch {
@@ -68,25 +72,25 @@ async function lexicalToHtml(data: unknown): Promise<string | undefined> {
   }
 }
 
-async function toTour(row: unknown): Promise<Tour> {
+async function toTour(row: unknown, payloadInstance: any): Promise<Tour> {
   const r = row as Record<string, unknown>
   const [overview, practicalInformation, seasonalInformation] = await Promise.all([
-    lexicalToHtml(r.overview),
-    lexicalToHtml(r.practicalInformation),
-    lexicalToHtml(r.seasonalInformation),
+    lexicalToHtml(r.overview, payloadInstance),
+    lexicalToHtml(r.practicalInformation, payloadInstance),
+    lexicalToHtml(r.seasonalInformation, payloadInstance),
   ])
 
   const itinerary = await Promise.all(
     ((r.itinerary as Array<Record<string, unknown>>) || []).map(async (item) => ({
       ...item,
-      summary: await lexicalToHtml(item.summary),
+      summary: await lexicalToHtml(item.summary, payloadInstance),
     })),
   )
 
   const optionalExtras = await Promise.all(
     ((r.optionalExtras as Array<Record<string, unknown>>) || []).map(async (extra) => ({
       ...extra,
-      description: await lexicalToHtml(extra.description),
+      description: await lexicalToHtml(extra.description, payloadInstance),
     })),
   )
 
@@ -135,6 +139,7 @@ function toTourCard(row: unknown): TourCard {
 
 export const getPublishedTours = cache(async (): Promise<TourCard[]> => {
   try {
+    const payload = await getPayloadClient()
     const result = await payload.find({
       collection: 'tours',
       where: {
@@ -151,6 +156,7 @@ export const getPublishedTours = cache(async (): Promise<TourCard[]> => {
 
 export const getFeaturedTours = cache(async (): Promise<TourCard[]> => {
   try {
+    const payload = await getPayloadClient()
     const result = await payload.find({
       collection: 'tours',
       where: {
@@ -167,6 +173,7 @@ export const getFeaturedTours = cache(async (): Promise<TourCard[]> => {
 })
 
 export const getTourBySlug = cache(async (slug: string): Promise<Tour> => {
+  const payload = await getPayloadClient()
   let result
   try {
     result = await payload.find({
@@ -185,11 +192,12 @@ export const getTourBySlug = cache(async (slug: string): Promise<Tour> => {
     notFound()
   }
 
-  return toTour(result.docs[0] as unknown)
+  return toTour(result.docs[0] as unknown, payload)
 })
 
 export const getTourSlugs = cache(async (): Promise<string[]> => {
   try {
+    const payload = await getPayloadClient()
     const result = await payload.find({
       collection: 'tours',
       where: {
@@ -207,6 +215,7 @@ export const getTourSlugs = cache(async (): Promise<string[]> => {
 
 export const getSitemapTours = cache(async (): Promise<Array<{ slug: string; updatedAt?: string }>> => {
   try {
+    const payload = await getPayloadClient()
     const result = await payload.find({
       collection: 'tours',
       where: {
