@@ -6,6 +6,7 @@ import { SiteFooter } from "@/components/site-footer";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { getSiteUrl } from "@/lib/site-url";
 import { TravelAgencyJsonLd } from "@/components/seo/json-ld";
+import { GoogleTagManager } from "@/components/analytics/google-tag-manager";
 
 const inter = Inter({
   variable: "--font-sans",
@@ -80,6 +81,7 @@ export default function RootLayout({
       lang="en"
       className={`${inter.variable} ${playfair.variable} h-full antialiased`}
     >
+      <GoogleTagManager />
       <body className="min-h-full flex flex-col bg-[#F8F9FA] text-stone-900 font-sans">
         <TravelAgencyJsonLd />
         <TooltipProvider>
