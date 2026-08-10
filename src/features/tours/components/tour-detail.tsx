@@ -14,16 +14,16 @@ export function TourDetail({ tour }: { tour: Tour }) {
     <article className="w-full bg-background pb-20">
       {/* Hero Section */}
       <section className="relative w-full h-[60vh] md:h-[70vh] flex items-end pb-12 px-4 sm:px-6 lg:px-8 bg-stone-900 overflow-hidden">
-        {tour.heroMedia?.url && (
+        {typeof tour.heroMedia?.url === "string" && tour.heroMedia.url ? (
           <Image
             src={tour.heroMedia.url}
-            alt={tour.heroMedia.alt || tour.title}
+            alt={typeof tour.heroMedia.alt === "string" ? tour.heroMedia.alt : tour.title}
             fill
             priority
             sizes="100vw"
             className="object-cover opacity-75"
           />
-        )}
+        ) : null}
         <div className="absolute inset-0 bg-gradient-to-t from-stone-950 via-stone-900/40 to-transparent z-10" />
         
         <div className="relative z-20 w-full max-w-7xl mx-auto flex flex-col items-start gap-4">
@@ -226,15 +226,15 @@ export function TourDetail({ tour }: { tour: Tour }) {
                 <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
                   {tour.gallery.map((g, i) => (
                     <div key={i} className="relative aspect-square rounded-lg overflow-hidden border border-border bg-muted group">
-                      {g.media?.url && (
+                      {typeof g.media?.url === "string" && g.media.url ? (
                         <Image
                           src={g.media.url}
-                          alt={g.media.alt || g.caption || tour.title}
+                          alt={typeof g.media.alt === "string" ? g.media.alt : g.caption || tour.title}
                           fill
                           sizes="(max-width: 768px) 50vw, 33vw"
                           className="object-cover group-hover:scale-105 transition-transform duration-300"
                         />
-                      )}
+                      ) : null}
                     </div>
                   ))}
                 </div>

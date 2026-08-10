@@ -14,49 +14,54 @@ const getPayloadClient = cache(async () => {
 
 const R2_PUBLIC_BASE = process.env.R2_PUBLIC_URL || 'https://pub-6b436ff2d3c345dcb470af66f325dda3.r2.dev'
 
-function resolveMediaUrl(rawUrl?: string, filename?: string): string {
-  if (!rawUrl && filename) {
-    return `${R2_PUBLIC_BASE}/${encodeURIComponent(filename)}`
-  }
-  if (!rawUrl) return ''
+function resolveMediaUrl(rawUrl?: unknown, filename?: unknown): string {
+  const strUrl = typeof rawUrl === 'string' ? rawUrl : ''
+  const strFilename = typeof filename === 'string' ? filename : ''
 
-  if (rawUrl.startsWith('http://') || rawUrl.startsWith('https://')) {
-    return rawUrl
+  if (!strUrl && strFilename) {
+    return `${R2_PUBLIC_BASE}/${encodeURIComponent(strFilename)}`
+  }
+  if (!strUrl) return ''
+
+  if (strUrl.startsWith('http://') || strUrl.startsWith('https://')) {
+    return strUrl
   }
 
-  if (rawUrl.startsWith('/api/media/file/')) {
-    const file = rawUrl.replace('/api/media/file/', '')
+  if (strUrl.startsWith('/api/media/file/')) {
+    const file = strUrl.replace('/api/media/file/', '')
     return `${R2_PUBLIC_BASE}/${file}`
   }
 
-  if (rawUrl.startsWith('/')) {
-    return `${R2_PUBLIC_BASE}${rawUrl}`
+  if (strUrl.startsWith('/')) {
+    return `${R2_PUBLIC_BASE}${strUrl}`
   }
 
-  return `${R2_PUBLIC_BASE}/${rawUrl}`
+  return `${R2_PUBLIC_BASE}/${strUrl}`
 }
 
 function toMediaRef(media: unknown): Tour['heroMedia'] | null {
   if (!media || typeof media !== 'object') return undefined
   const m = media as Record<string, unknown>
-  const rawUrl = (m.url as string) || ((m.sizes as Record<string, { url?: string }>)?.card?.url)
-  const filename = m.filename as string | undefined
+  const rawUrl = typeof m.url === 'string' ? m.url : m.sizes && typeof m.sizes === 'object' ? (m.sizes as any).card?.url : undefined
+  const filename = typeof m.filename === 'string' ? m.filename : undefined
   const finalUrl = resolveMediaUrl(rawUrl, filename)
 
+  if (!finalUrl || typeof finalUrl !== 'string') return undefined
+
   return {
-    id: String(m.id),
+    id: String(m.id || ''),
     url: finalUrl,
-    alt: (m.alt as string) || '',
-    caption: m.caption as string | undefined,
-    mediaType: m.mediaType as 'image' | 'video' | undefined,
+    alt: typeof m.alt === 'string' ? m.alt : '',
+    caption: typeof m.caption === 'string' ? m.caption : undefined,
+    mediaType: (m.mediaType as 'image' | 'video') || 'image',
     filename,
-    mimeType: m.mimeType as string | undefined,
-    width: m.width as number | undefined,
-    height: m.height as number | undefined,
+    mimeType: typeof m.mimeType === 'string' ? m.mimeType : undefined,
+    width: typeof m.width === 'number' ? m.width : undefined,
+    height: typeof m.height === 'number' ? m.height : undefined,
   }
 }
 
-async function lexicalToHtml(data: unknown, payloadInstance: any): Promise<string | undefined> {
+async function lexicalToHtml(data: unknown): Promise<string | undefined> {
   if (!data) return undefined
   if (typeof data === 'string') return data
   if (typeof data !== 'object') return undefined
@@ -64,7 +69,6 @@ async function lexicalToHtml(data: unknown, payloadInstance: any): Promise<strin
     const html = await convertLexicalToHTML({
       converters: defaultHTMLConverters,
       data: data as any,
-      payload: payloadInstance,
     })
     return html
   } catch {
@@ -83,12 +87,12 @@ const DEFAULT_SLUGS = [
   'whale-watching',
 ]
 
-async function toTour(row: unknown, payloadInstance: any): Promise<Tour> {
+async function toTour(row: unknown): Promise<Tour> {
   const r = (row || {}) as Record<string, unknown>
   const [overview, practicalInformation, seasonalInformation] = await Promise.all([
-    lexicalToHtml(r.overview, payloadInstance),
-    lexicalToHtml(r.practicalInformation, payloadInstance),
-    lexicalToHtml(r.seasonalInformation, payloadInstance),
+    lexicalToHtml(r.overview),
+    lexicalToHtml(r.practicalInformation),
+    lexicalToHtml(r.seasonalInformation),
   ])
 
   const itinerary = await Promise.all(
@@ -96,7 +100,7 @@ async function toTour(row: unknown, payloadInstance: any): Promise<Tour> {
       .filter((item): item is Record<string, unknown> => Boolean(item && typeof item === 'object'))
       .map(async (item) => ({
         ...item,
-        summary: await lexicalToHtml(item.summary, payloadInstance),
+        summary: await lexicalToHtml(item.summary),
         activities: Array.isArray(item.activities) ? item.activities : [],
       })),
   )
@@ -106,7 +110,7 @@ async function toTour(row: unknown, payloadInstance: any): Promise<Tour> {
       .filter((extra): extra is Record<string, unknown> => Boolean(extra && typeof extra === 'object'))
       .map(async (extra) => ({
         ...extra,
-        description: await lexicalToHtml(extra.description, payloadInstance),
+        description: await lexicalToHtml(extra.description),
       })),
   )
 
@@ -114,8 +118,9 @@ async function toTour(row: unknown, payloadInstance: any): Promise<Tour> {
     .filter((g): g is Record<string, unknown> => Boolean(g && typeof g === 'object'))
     .map((g) => ({
       media: toMediaRef(g.media) || { id: '', url: '', alt: '' },
-      caption: g.caption as string | undefined,
+      caption: typeof g.caption === 'string' ? g.caption : undefined,
     }))
+    .filter((g) => Boolean(g.media && typeof g.media.url === 'string' && g.media.url))
 
   return {
     id: String(r.id || ''),
@@ -149,7 +154,7 @@ function toTourCard(row: unknown): TourCard {
     title: (r.title as string) || '',
     slug: (r.slug as string) || '',
     shortDescription: (r.shortDescription as string) || '',
-    heroMedia: hero ? { url: hero.url || '', alt: hero.alt || '' } : undefined,
+    heroMedia: hero && typeof hero.url === 'string' && hero.url ? { url: hero.url, alt: typeof hero.alt === 'string' ? hero.alt : '' } : undefined,
     tourType: (r.tourType as TourCard['tourType']) || 'day-tour',
     durationLabel: r.durationLabel as string | undefined,
     featured: Boolean(r.featured),
@@ -224,7 +229,7 @@ export const getTourBySlug = cache(async (rawSlug: unknown): Promise<Tour> => {
     notFound()
   }
 
-  return toTour(result.docs[0] as unknown, payload)
+  return toTour(result.docs[0] as unknown)
 })
 
 export const getTourSlugs = cache(async (): Promise<string[]> => {

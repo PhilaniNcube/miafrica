@@ -11,10 +11,10 @@ export function TourCard({ tour }: { tour: TourCardType }) {
   return (
     <Card className="group overflow-hidden rounded-xl border border-border bg-card shadow-sm hover:border-primary/50 transition-all duration-300 flex flex-col h-full p-0">
       <div className="relative aspect-[16/10] overflow-hidden bg-muted">
-        {tour.heroMedia?.url ? (
+        {typeof tour.heroMedia?.url === "string" && tour.heroMedia.url ? (
           <Image
             src={tour.heroMedia.url}
-            alt={tour.heroMedia.alt || tour.title}
+            alt={typeof tour.heroMedia.alt === "string" ? tour.heroMedia.alt : tour.title}
             fill
             sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
             className="object-cover transition-transform duration-500 group-hover:scale-105"
