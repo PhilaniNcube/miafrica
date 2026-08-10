@@ -40,7 +40,7 @@ export default function HomePage() {
         {/* Background Image overlay */}
         <div className="absolute inset-0 z-0 bg-stone-900">
           <Image
-            src="https://pub-6b436ff2d3c345dcb470af66f325dda3.r2.dev/kruger-safari-hero.jpg"
+            src="https://pub-6b436ff2d3c345dcb470af66f325dda3.r2.dev/Table%20Mountain"
             alt="South African safari landscape at golden hour"
             fill
             priority
