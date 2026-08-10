@@ -3,6 +3,8 @@ import configPromise from "@payload-config";
 import { generatePageMetadata, RootPage } from "@payloadcms/next/views";
 import { importMap } from "../importMap";
 
+export const instant = false;
+
 type Args = {
   params: Promise<{ segments: string[] }>;
   searchParams: Promise<{ [key: string]: string | string[] }>;

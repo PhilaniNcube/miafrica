@@ -26,6 +26,20 @@ export default buildConfig({
     },
   },
   collections: [Users, Media, Locations, Tours, Inquiries],
+  csrf: [
+    process.env.NEXT_PUBLIC_SITE_URL,
+    'https://miafrica.vercel.app',
+    'https://miafrica.co.za',
+    'https://www.miafrica.co.za',
+    'http://localhost:3000',
+  ].filter(Boolean) as string[],
+  cors: [
+    process.env.NEXT_PUBLIC_SITE_URL,
+    'https://miafrica.vercel.app',
+    'https://miafrica.co.za',
+    'https://www.miafrica.co.za',
+    'http://localhost:3000',
+  ].filter(Boolean) as string[],
   localization: {
     locales: [
       {
