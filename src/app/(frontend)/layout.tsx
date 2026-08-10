@@ -81,8 +81,8 @@ export default function RootLayout({
       lang="en"
       className={`${inter.variable} ${playfair.variable} h-full antialiased`}
     >
-      <GoogleTagManager />
       <body className="min-h-full flex flex-col bg-[#F8F9FA] text-stone-900 font-sans">
+        <GoogleTagManager />
         <TravelAgencyJsonLd />
         <TooltipProvider>
           <SiteHeader />
