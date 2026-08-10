@@ -1,3 +1,9 @@
+import dotenv from 'dotenv'
+import path from 'path'
+
+dotenv.config({ path: path.resolve(process.cwd(), '.env.production') })
+dotenv.config({ path: path.resolve(process.cwd(), '.env') })
+
 import configPromise from '../payload.config'
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
@@ -733,24 +739,29 @@ async function seed() {
   const { getPayload } = await import('payload')
   const payload = await getPayload({ config: configPromise })
 
-  console.log('Deleting existing tours...')
+  const TARGET_SLUGS = ['garden-route', 'whale-watching']
+  const toursToSeed = tours.filter((t) => TARGET_SLUGS.includes(t.slug))
 
-  const existing = await payload.find({
-    collection: 'tours',
-    limit: 0,
-  })
+  console.log(`Seeding targeted tours: ${TARGET_SLUGS.join(', ')}...`)
 
-  for (const doc of existing.docs) {
-    await payload.delete({
+  for (const tour of toursToSeed) {
+    // Delete existing document with this slug if found
+    const existing = await payload.find({
       collection: 'tours',
-      id: (doc as any).id,
+      where: {
+        slug: { equals: tour.slug },
+      },
+      limit: 10,
     })
-  }
 
-  console.log(`Deleted ${existing.docs.length} existing tours.`)
-  console.log('Seeding tours...')
+    for (const doc of existing.docs) {
+      console.log(`  Deleting existing tour: ${tour.slug} (ID: ${doc.id})`)
+      await payload.delete({
+        collection: 'tours',
+        id: doc.id as any,
+      })
+    }
 
-  for (const tour of tours) {
     const tourData: Record<string, unknown> = { ...tour }
 
     if (typeof tourData.overview === 'string') {
@@ -785,14 +796,14 @@ async function seed() {
       )
     }
 
-    console.log(`  Creating: ${tour.title}`)
+    console.log(`  Creating tour: ${tour.title} (${tour.slug})`)
     await payload.create({
       collection: 'tours',
       data: tourData as any,
     })
   }
 
-  console.log('Seeding complete.')
+  console.log('Seeding of garden-route and whale-watching complete.')
   process.exit(0)
 }
 
