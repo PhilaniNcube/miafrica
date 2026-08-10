@@ -2,6 +2,7 @@ import { use, Suspense } from "react";
 import type { Metadata } from "next";
 import { getTourBySlug, getTourSlugs } from "@/features/tours/tours-queries";
 import { TourDetail, TourDetailSkeleton } from "@/features/tours/components/tour-detail";
+import { TouristTripJsonLd } from "@/components/seo/json-ld";
 
 type Args = {
   params: Promise<{ slug: string }>;
@@ -10,11 +11,30 @@ type Args = {
 export async function generateMetadata({ params }: Args): Promise<Metadata> {
   const { slug } = await params;
   const tour = await getTourBySlug(slug);
+  const title = tour.seo?.title || tour.title;
+  const description = tour.seo?.description || tour.shortDescription;
+  const imageUrl = tour.seo?.ogImage || tour.heroMedia?.url;
+  const canonicalUrl = `/tours/${slug}`;
+
   return {
-    title: tour.seo?.title || `${tour.title} — MiAfrica`,
-    description: tour.seo?.description || tour.shortDescription,
+    title,
+    description,
+    alternates: {
+      canonical: canonicalUrl,
+    },
     openGraph: {
-      images: tour.seo?.ogImage ? [tour.seo.ogImage] : tour.heroMedia?.url ? [tour.heroMedia.url] : [],
+      type: "website",
+      siteName: "MiAfrica",
+      title,
+      description,
+      url: canonicalUrl,
+      images: imageUrl ? [{ url: imageUrl, alt: tour.heroMedia?.alt || title }] : [],
+    },
+    twitter: {
+      card: "summary_large_image",
+      title,
+      description,
+      images: imageUrl ? [imageUrl] : [],
     },
   };
 }
@@ -39,5 +59,10 @@ function TourDetailContent({ params }: { params: Promise<{ slug: string }> }) {
 
 async function TourDetailAsync({ slug }: { slug: string }) {
   const tour = await getTourBySlug(slug);
-  return <TourDetail tour={tour} />;
+  return (
+    <>
+      <TouristTripJsonLd tour={tour} />
+      <TourDetail tour={tour} />
+    </>
+  );
 }

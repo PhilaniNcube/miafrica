@@ -9,7 +9,7 @@ export const DEFAULT_FROM_EMAIL =
   process.env.RESEND_FROM_EMAIL || 'MiAfrica Concierge <onboarding@resend.dev>'
 
 export const DEFAULT_CONCIERGE_EMAIL =
-  process.env.CONCIERGE_EMAIL || 'hello@miafrica.com'
+  process.env.CONCIERGE_EMAIL || 'info@miafrica.co.za'
 
 export type SendEmailOptions = {
   to: string | string[]

@@ -1,4 +1,5 @@
 import { Suspense } from "react";
+import type { Metadata } from "next";
 import Link from "next/link";
 import Image from "next/image";
 import { getFeaturedTours } from "@/features/tours/tours-queries";
@@ -7,6 +8,29 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
 import { ShieldCheck, Compass, HeartHandshake, ArrowRight, PlayCircle } from "lucide-react";
+
+export const metadata: Metadata = {
+  title: "MiAfrica — Curated Tour Experiences Across South Africa",
+  description:
+    "Embark on a journey designed for the modern explorer. Experience the raw beauty of South Africa combined with luxury bespoke service.",
+  alternates: {
+    canonical: "/",
+  },
+  openGraph: {
+    title: "MiAfrica — Curated Tour Experiences Across South Africa",
+    description:
+      "Embark on a journey designed for the modern explorer. Experience the raw beauty of South Africa combined with luxury bespoke service.",
+    url: "/",
+    images: [
+      {
+        url: "https://pub-6b436ff2d3c345dcb470af66f325dda3.r2.dev/kruger-safari-hero.jpg",
+        width: 1200,
+        height: 630,
+        alt: "South African safari landscape at golden hour",
+      },
+    ],
+  },
+};
 
 export default function HomePage() {
   return (

@@ -3,11 +3,27 @@ import type { Metadata } from "next";
 import { getPublishedTours } from "@/features/tours/tours-queries";
 import { TourGrid, TourGridSkeleton } from "@/features/tours/components/tour-grid";
 import { Badge } from "@/components/ui/badge";
+import { TourCatalogJsonLd } from "@/components/seo/json-ld";
 
 export const metadata: Metadata = {
-  title: "Tours — MiAfrica",
+  title: "Explore Tours",
   description:
     "Explore all MiAfrica tour offerings: Garden Route, City Tour, Winelands, Township, Goodhope Tour, Safari, Hiking and Whale Watching.",
+  alternates: {
+    canonical: "/tours",
+  },
+  openGraph: {
+    title: "Explore Curated Tours Across South Africa | MiAfrica",
+    description:
+      "Explore all MiAfrica tour offerings: Garden Route, City Tour, Winelands, Township, Goodhope Tour, Safari, Hiking and Whale Watching.",
+    url: "/tours",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Explore Curated Tours Across South Africa | MiAfrica",
+    description:
+      "Explore all MiAfrica tour offerings: Garden Route, City Tour, Winelands, Township, Goodhope Tour, Safari, Hiking and Whale Watching.",
+  },
 };
 
 export default function ToursPage() {
@@ -52,5 +68,10 @@ export default function ToursPage() {
 
 async function AllTours() {
   const tours = await getPublishedTours();
-  return <TourGrid tours={tours} />;
+  return (
+    <>
+      <TourCatalogJsonLd tours={tours} />
+      <TourGrid tours={tours} />
+    </>
+  );
 }

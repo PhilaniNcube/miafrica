@@ -204,3 +204,22 @@ export const getTourSlugs = cache(async (): Promise<string[]> => {
     return ['__placeholder__']
   }
 })
+
+export const getSitemapTours = cache(async (): Promise<Array<{ slug: string; updatedAt?: string }>> => {
+  try {
+    const result = await payload.find({
+      collection: 'tours',
+      where: {
+        status: { equals: 'published' },
+      },
+      select: { slug: true, updatedAt: true },
+      limit: 0,
+    })
+    return result.docs.map((doc) => ({
+      slug: (doc as Record<string, unknown>).slug as string,
+      updatedAt: (doc as Record<string, unknown>).updatedAt as string | undefined,
+    }))
+  } catch {
+    return []
+  }
+})

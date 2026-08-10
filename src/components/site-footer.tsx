@@ -42,7 +42,7 @@ export function SiteFooter() {
             </li>
             <li className="flex items-center gap-2">
               <Mail className="h-4 w-4 text-secondary shrink-0" />
-              <span>hello@miafrica.com</span>
+              <span>info@miafrica.co.za</span>
             </li>
           </ul>
         </div>
@@ -53,9 +53,9 @@ export function SiteFooter() {
             Join our mailing list to receive hand-crafted safari and coastal excursion offers.
           </p>
           <div className="flex gap-2">
-            <input 
-              type="email" 
-              placeholder="Enter your email" 
+            <input
+              type="email"
+              placeholder="Enter your email"
               className="bg-white/10 border border-white/20 rounded px-3 py-2 text-xs text-white placeholder:text-white/50 focus:outline-none focus:ring-1 focus:ring-secondary w-full"
             />
             <button className="bg-secondary hover:bg-secondary/90 text-white text-xs px-3 py-2 rounded font-semibold uppercase tracking-wider transition-colors shrink-0">

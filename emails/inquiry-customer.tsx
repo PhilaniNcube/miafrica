@@ -86,7 +86,7 @@ export function InquiryCustomerEmail({
               <Text className="text-[14px] font-bold text-primary uppercase tracking-[1px] m-0 mb-[12px]">
                 Inquiry Summary
               </Text>
-              
+
               <Row className="mb-[8px]">
                 <Text className="text-[14px] text-slate-600 m-0">
                   <strong className="text-slate-800">Selected Experience:</strong> {tourTitle}
@@ -145,7 +145,7 @@ export function InquiryCustomerEmail({
               <Text className="text-[12px] leading-[18px] m-0">
                 <strong>MiAfrica Concierge Team</strong><br />
                 Victoria &amp; Alfred Waterfront, Cape Town, 8001, South Africa<br />
-                Direct: +27 (0) 21 555 0123 • Email: hello@miafrica.com
+                Direct: +27 (0) 21 555 0123 • Email: info@miafrica.co.za
               </Text>
               <Text className="text-[11px] text-slate-400 mt-[12px] m-0">
                 © {new Date().getFullYear()} MiAfrica. All rights reserved.
