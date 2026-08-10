@@ -1,15 +1,26 @@
-import { use, Suspense } from "react";
+import { Suspense } from "react";
 import type { Metadata } from "next";
 import { getTourBySlug, getTourSlugs } from "@/features/tours/tours-queries";
 import { TourDetail, TourDetailSkeleton } from "@/features/tours/components/tour-detail";
 import { TouristTripJsonLd } from "@/components/seo/json-ld";
 
 type Args = {
-  params: Promise<{ slug: string }>;
+  params: Promise<{ slug: string }> | { slug: string };
 };
 
+async function resolveSlug(params: Promise<{ slug: string }> | { slug: string }): Promise<string> {
+  const resolved = await params;
+  if (!resolved) return "";
+  if (typeof resolved === "string") return resolved;
+  if (typeof resolved.slug === "string") return resolved.slug;
+  if (typeof resolved.slug === "object" && resolved.slug !== null) {
+    return (resolved.slug as any).slug || String(resolved.slug);
+  }
+  return String(resolved.slug || "");
+}
+
 export async function generateMetadata({ params }: Args): Promise<Metadata> {
-  const { slug } = await params;
+  const slug = await resolveSlug(params);
   const tour = await getTourBySlug(slug);
   const title = tour.seo?.title || tour.title;
   const description = tour.seo?.description || tour.shortDescription;
@@ -47,17 +58,13 @@ export async function generateStaticParams() {
 export default function TourPage({ params }: Args) {
   return (
     <Suspense fallback={<TourDetailSkeleton />}>
-      <TourDetailContent params={params} />
+      <TourDetailAsync params={params} />
     </Suspense>
   );
 }
 
-function TourDetailContent({ params }: { params: Promise<{ slug: string }> }) {
-  const { slug } = use(params);
-  return <TourDetailAsync slug={slug} />;
-}
-
-async function TourDetailAsync({ slug }: { slug: string }) {
+async function TourDetailAsync({ params }: { params: Promise<{ slug: string }> | { slug: string } }) {
+  const slug = await resolveSlug(params);
   const tour = await getTourBySlug(slug);
   return (
     <>

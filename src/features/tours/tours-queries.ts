@@ -193,7 +193,18 @@ export const getFeaturedTours = cache(async (): Promise<TourCard[]> => {
   }
 })
 
-export const getTourBySlug = cache(async (slug: string): Promise<Tour> => {
+export const getTourBySlug = cache(async (rawSlug: unknown): Promise<Tour> => {
+  const slug =
+    typeof rawSlug === 'string'
+      ? rawSlug
+      : typeof rawSlug === 'object' && rawSlug !== null
+      ? ((rawSlug as any).slug as string) || String(rawSlug)
+      : String(rawSlug || '')
+
+  if (!slug) {
+    notFound()
+  }
+
   const payload = await getPayloadClient()
   let result
   try {
