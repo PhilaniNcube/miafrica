@@ -19,6 +19,16 @@ export async function createReview(
   const content = formData.get('content')
   const reviewDate = formData.get('reviewDate')
 
+  console.log('[createReview Action] Received form submission:', {
+    author,
+    location,
+    tourId,
+    ratingRaw,
+    title,
+    content,
+    reviewDate,
+  })
+
   if (typeof author !== 'string' || author.trim().length === 0) {
     return {
       ok: false,

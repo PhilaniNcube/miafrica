@@ -1,6 +1,6 @@
 "use client";
 
-import { useActionState, useState } from "react";
+import { useActionState, useState, useEffect } from "react";
 import { createReview } from "@/features/reviews/reviews-actions";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -24,6 +24,12 @@ export function ReviewForm({
   const [rating, setRating] = useState<number>(5);
   const [hoveredRating, setHoveredRating] = useState<number | null>(null);
 
+  useEffect(() => {
+    if (state) {
+      console.log("[ReviewForm] Server action response:", state);
+    }
+  }, [state]);
+
   if (state && state.ok) {
     return (
       <div className="rounded-2xl border border-emerald-200 bg-emerald-50/80 p-8 sm:p-10 text-center shadow-sm">
@@ -43,7 +49,14 @@ export function ReviewForm({
   const activeRating = hoveredRating !== null ? hoveredRating : rating;
 
   return (
-    <form action={formAction} className="space-y-6">
+    <form
+      action={formAction}
+      onSubmit={(e) => {
+        const formData = new FormData(e.currentTarget);
+        console.log("[ReviewForm] Submitting review form data:", Object.fromEntries(formData.entries()));
+      }}
+      className="space-y-6"
+    >
       {/* Star Rating Section */}
       <div className="space-y-2">
         <Label className="text-xs font-semibold uppercase tracking-wider text-muted-foreground block">
