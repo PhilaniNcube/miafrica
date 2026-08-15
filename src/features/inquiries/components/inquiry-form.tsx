@@ -110,16 +110,29 @@ export function InquiryForm({
         </div>
       </div>
 
-      <div className="space-y-1.5">
-        <Label htmlFor="preferredDate" className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-          Preferred Travel Date
-        </Label>
-        <Input
-          id="preferredDate"
-          name="preferredDate"
-          type="date"
-          className="bg-white border-border focus:ring-2 focus:ring-primary"
-        />
+      <div className="grid gap-4 sm:grid-cols-2">
+        <div className="space-y-1.5">
+          <Label htmlFor="startDate" className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+            From Date
+          </Label>
+          <Input
+            id="startDate"
+            name="startDate"
+            type="date"
+            className="bg-white border-border focus:ring-2 focus:ring-primary"
+          />
+        </div>
+        <div className="space-y-1.5">
+          <Label htmlFor="endDate" className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+            To Date
+          </Label>
+          <Input
+            id="endDate"
+            name="endDate"
+            type="date"
+            className="bg-white border-border focus:ring-2 focus:ring-primary"
+          />
+        </div>
       </div>
 
       <div className="space-y-1.5">

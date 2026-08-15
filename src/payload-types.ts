@@ -452,9 +452,13 @@ export interface Inquiry {
   email: string;
   phone?: string | null;
   /**
-   * Preferred travel date.
+   * Travel start date (From).
    */
-  preferredDate?: string | null;
+  startDate?: string | null;
+  /**
+   * Travel end date (To).
+   */
+  endDate?: string | null;
   /**
    * Number of travellers.
    */
@@ -751,7 +755,8 @@ export interface InquiriesSelect<T extends boolean = true> {
   name?: T;
   email?: T;
   phone?: T;
-  preferredDate?: T;
+  startDate?: T;
+  endDate?: T;
   travellerCount?: T;
   message?: T;
   status?: T;

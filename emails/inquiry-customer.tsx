@@ -18,7 +18,8 @@ import * as React from 'react'
 export interface InquiryCustomerEmailProps {
   customerName?: string
   tourTitle?: string
-  preferredDate?: string
+  startDate?: string
+  endDate?: string
   travellerCount?: number
   message?: string
 }
@@ -26,7 +27,8 @@ export interface InquiryCustomerEmailProps {
 export function InquiryCustomerEmail({
   customerName = 'Valued Traveller',
   tourTitle = 'Bespoke Tour Experience',
-  preferredDate,
+  startDate,
+  endDate,
   travellerCount,
   message,
 }: InquiryCustomerEmailProps) {
@@ -93,10 +95,15 @@ export function InquiryCustomerEmail({
                 </Text>
               </Row>
 
-              {preferredDate && (
+              {(startDate || endDate) && (
                 <Row className="mb-[8px]">
                   <Text className="text-[14px] text-slate-600 m-0">
-                    <strong className="text-slate-800">Preferred Travel Date:</strong> {preferredDate}
+                    <strong className="text-slate-800">Travel Dates:</strong>{' '}
+                    {startDate && endDate
+                      ? `${startDate} to ${endDate}`
+                      : startDate
+                      ? `From ${startDate}`
+                      : `Until ${endDate}`}
                   </Text>
                 </Row>
               )}
@@ -161,7 +168,8 @@ export function InquiryCustomerEmail({
 InquiryCustomerEmail.PreviewProps = {
   customerName: 'Eleanor Vance',
   tourTitle: 'Garden Route Scenic Odyssey',
-  preferredDate: '2026-11-15',
+  startDate: '2026-11-15',
+  endDate: '2026-11-22',
   travellerCount: 4,
   message: 'We are looking forward to exploring Oudtshoorn and the coastline with a private guide.',
 } satisfies InquiryCustomerEmailProps

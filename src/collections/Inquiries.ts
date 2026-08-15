@@ -5,7 +5,7 @@ export const Inquiries: CollectionConfig = {
   admin: {
     group: 'Operations',
     useAsTitle: 'name',
-    defaultColumns: ['name', 'tour', 'preferredDate', 'status', 'createdAt'],
+    defaultColumns: ['name', 'tour', 'startDate', 'endDate', 'status', 'createdAt'],
     description: 'Tour inquiries submitted from the website inquiry form.',
   },
   access: {
@@ -36,10 +36,19 @@ export const Inquiries: CollectionConfig = {
       type: 'text',
     },
     {
-      name: 'preferredDate',
+      name: 'startDate',
       type: 'date',
+      label: 'From Date',
       admin: {
-        description: 'Preferred travel date.',
+        description: 'Travel start date (From).',
+      },
+    },
+    {
+      name: 'endDate',
+      type: 'date',
+      label: 'To Date',
+      admin: {
+        description: 'Travel end date (To).',
       },
     },
     {

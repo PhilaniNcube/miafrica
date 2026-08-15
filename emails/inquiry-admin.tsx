@@ -20,7 +20,8 @@ export interface InquiryAdminEmailProps {
   customerEmail?: string
   customerPhone?: string
   tourTitle?: string
-  preferredDate?: string
+  startDate?: string
+  endDate?: string
   travellerCount?: number
   message?: string
   inquiryId?: string | number
@@ -32,7 +33,8 @@ export function InquiryAdminEmail({
   customerEmail = 'jane.doe@example.com',
   customerPhone = '+27 82 123 4567',
   tourTitle = 'General Inquiry',
-  preferredDate = 'Not specified',
+  startDate,
+  endDate,
   travellerCount = 2,
   message = 'No additional message provided.',
   inquiryId,
@@ -132,7 +134,14 @@ export function InquiryAdminEmail({
 
               <Row className="mb-[8px]">
                 <Text className="text-[14px] text-slate-600 m-0">
-                  <strong className="text-slate-800">Preferred Date:</strong> {preferredDate}
+                  <strong className="text-slate-800">Travel Dates:</strong>{' '}
+                  {startDate && endDate
+                    ? `${startDate} to ${endDate}`
+                    : startDate
+                    ? `From ${startDate}`
+                    : endDate
+                    ? `Until ${endDate}`
+                    : 'Not specified'}
                 </Text>
               </Row>
 
@@ -184,7 +193,8 @@ InquiryAdminEmail.PreviewProps = {
   customerEmail: 'marcus.vance@example.com',
   customerPhone: '+27 83 987 6543',
   tourTitle: 'Cape Peninsula & Cape of Good Hope Private Tour',
-  preferredDate: '2026-12-01',
+  startDate: '2026-12-01',
+  endDate: '2026-12-08',
   travellerCount: 3,
   message: 'Can we include a helicopter transfer over Table Mountain?',
   inquiryId: '42',

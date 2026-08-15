@@ -18,7 +18,8 @@ export async function createInquiry(
   const name = formData.get('name')
   const email = formData.get('email')
   const phone = formData.get('phone')
-  const preferredDate = formData.get('preferredDate')
+  const startDate = formData.get('startDate')
+  const endDate = formData.get('endDate')
   const travellerCount = formData.get('travellerCount')
   const message = formData.get('message')
   const tourId = formData.get('tourId')
@@ -63,7 +64,8 @@ export async function createInquiry(
   const trimmedName = name.trim()
   const trimmedEmail = email.trim()
   const trimmedPhone = (typeof phone === 'string' && phone.trim()) || undefined
-  const formattedDate = (typeof preferredDate === 'string' && preferredDate.trim()) || undefined
+  const formattedStartDate = (typeof startDate === 'string' && startDate.trim()) || undefined
+  const formattedEndDate = (typeof endDate === 'string' && endDate.trim()) || undefined
   const numTravellers =
     typeof travellerCount === 'string' && travellerCount
       ? parseInt(travellerCount, 10)
@@ -80,7 +82,8 @@ export async function createInquiry(
       inquiryData.tour = parsedTourId
     }
     if (trimmedPhone) inquiryData.phone = trimmedPhone
-    if (formattedDate) inquiryData.preferredDate = formattedDate
+    if (formattedStartDate) inquiryData.startDate = formattedStartDate
+    if (formattedEndDate) inquiryData.endDate = formattedEndDate
     if (numTravellers) inquiryData.travellerCount = numTravellers
     if (trimmedMessage) inquiryData.message = trimmedMessage
 
@@ -101,7 +104,8 @@ export async function createInquiry(
         react: React.createElement(InquiryCustomerEmail, {
           customerName: trimmedName,
           tourTitle,
-          preferredDate: formattedDate,
+          startDate: formattedStartDate,
+          endDate: formattedEndDate,
           travellerCount: numTravellers,
           message: trimmedMessage,
         }),
@@ -117,7 +121,8 @@ export async function createInquiry(
           customerEmail: trimmedEmail,
           customerPhone: trimmedPhone,
           tourTitle,
-          preferredDate: formattedDate,
+          startDate: formattedStartDate,
+          endDate: formattedEndDate,
           travellerCount: numTravellers,
           message: trimmedMessage,
           inquiryId: inquiry.id,
