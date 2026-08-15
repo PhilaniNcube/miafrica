@@ -17,7 +17,7 @@ export const Reviews: CollectionConfig = {
         },
       }
     },
-    create: ({ req: { user } }) => Boolean(user),
+    create: () => true,
     update: ({ req: { user } }) => Boolean(user),
     delete: ({ req: { user } }) => Boolean(user),
   },
@@ -87,7 +87,7 @@ export const Reviews: CollectionConfig = {
         { label: 'Pending Moderation', value: 'pending' },
         { label: 'Archived', value: 'archived' },
       ],
-      defaultValue: 'published',
+      defaultValue: 'pending',
       required: true,
       admin: {
         position: 'sidebar',
