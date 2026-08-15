@@ -9,6 +9,7 @@ import { Media } from './collections/Media'
 import { Locations } from './collections/Locations'
 import { Tours } from './collections/Tours'
 import { Inquiries } from './collections/Inquiries'
+import { Reviews } from './collections/Reviews'
 import { r2Adapter } from './lib/storage/r2Adapter'
 
 export default buildConfig({
@@ -25,7 +26,7 @@ export default buildConfig({
       baseDir: './src/app/(payload)/admin',
     },
   },
-  collections: [Users, Media, Locations, Tours, Inquiries],
+  collections: [Users, Media, Locations, Tours, Inquiries, Reviews],
   csrf: [
     process.env.NEXT_PUBLIC_SITE_URL,
     'https://miafrica.vercel.app',

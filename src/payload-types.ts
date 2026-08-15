@@ -72,6 +72,7 @@ export interface Config {
     locations: Location;
     tours: Tour;
     inquiries: Inquiry;
+    reviews: Review;
     'payload-kv': PayloadKv;
     'payload-locked-documents': PayloadLockedDocument;
     'payload-preferences': PayloadPreference;
@@ -84,6 +85,7 @@ export interface Config {
     locations: LocationsSelect<false> | LocationsSelect<true>;
     tours: ToursSelect<false> | ToursSelect<true>;
     inquiries: InquiriesSelect<false> | InquiriesSelect<true>;
+    reviews: ReviewsSelect<false> | ReviewsSelect<true>;
     'payload-kv': PayloadKvSelect<false> | PayloadKvSelect<true>;
     'payload-locked-documents': PayloadLockedDocumentsSelect<false> | PayloadLockedDocumentsSelect<true>;
     'payload-preferences': PayloadPreferencesSelect<false> | PayloadPreferencesSelect<true>;
@@ -473,6 +475,26 @@ export interface Inquiry {
   updatedAt: string;
 }
 /**
+ * Customer reviews and testimonials with optional tour linkage.
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "reviews".
+ */
+export interface Review {
+  id: number;
+  author: string;
+  location?: string | null;
+  tour?: (number | null) | Tour;
+  rating: number;
+  title?: string | null;
+  content: string;
+  reviewDate?: string | null;
+  status: 'published' | 'pending' | 'archived';
+  isFeatured?: boolean | null;
+  createdAt: string;
+  updatedAt: string;
+}
+/**
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "payload-kv".
  */
@@ -515,6 +537,10 @@ export interface PayloadLockedDocument {
     | ({
         relationTo: 'inquiries';
         value: number | Inquiry;
+      } | null)
+    | ({
+        relationTo: 'reviews';
+        value: number | Review;
       } | null);
   globalSlug?: string | null;
   user: {
@@ -761,6 +787,23 @@ export interface InquiriesSelect<T extends boolean = true> {
   message?: T;
   status?: T;
   internalNotes?: T;
+  createdAt?: T;
+  updatedAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "reviews_select".
+ */
+export interface ReviewsSelect<T extends boolean = true> {
+  author?: T;
+  location?: T;
+  tour?: T;
+  rating?: T;
+  title?: T;
+  content?: T;
+  reviewDate?: T;
+  status?: T;
+  isFeatured?: T;
   createdAt?: T;
   updatedAt?: T;
 }
