@@ -1,5 +1,6 @@
 "use client";
 
+import * as React from "react";
 import Image from "next/image";
 import type { Tour } from "@/types/tour";
 import { InquiryForm } from "@/features/inquiries/components/inquiry-form";
@@ -7,26 +8,91 @@ import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
-import { CheckCircle2, XCircle, Clock, MapPin, Sparkles, Users, Calendar } from "lucide-react";
+import { CheckCircle2, XCircle, Clock, MapPin, Sparkles, Users, Calendar, ZoomIn } from "lucide-react";
+import { ImageLightbox, type LightboxImage } from "@/components/ui/image-lightbox";
 
 export function TourDetail({ tour }: { tour: Tour }) {
+  const [lightboxOpen, setLightboxOpen] = React.useState(false);
+  const [lightboxIndex, setLightboxIndex] = React.useState(0);
+
+  const allImages = React.useMemo<LightboxImage[]>(() => {
+    const list: LightboxImage[] = [];
+    if (typeof tour.heroMedia?.url === "string" && tour.heroMedia.url) {
+      list.push({
+        url: tour.heroMedia.url,
+        alt: typeof tour.heroMedia.alt === "string" ? tour.heroMedia.alt : tour.title,
+        caption: typeof tour.heroMedia.caption === "string" ? tour.heroMedia.caption : tour.title,
+        title: tour.title,
+        width: tour.heroMedia.width,
+        height: tour.heroMedia.height,
+      });
+    }
+
+    if (tour.gallery && tour.gallery.length > 0) {
+      tour.gallery.forEach((g) => {
+        if (typeof g.media?.url === "string" && g.media.url) {
+          list.push({
+            url: g.media.url,
+            alt: typeof g.media.alt === "string" ? g.media.alt : g.caption || tour.title,
+            caption: g.caption || (typeof g.media.caption === "string" ? g.media.caption : undefined),
+            title: tour.title,
+            width: g.media.width,
+            height: g.media.height,
+          });
+        }
+      });
+    }
+
+    return list;
+  }, [tour]);
+
+  const openLightboxForImage = (imageUrl: string) => {
+    const foundIndex = allImages.findIndex((img) => img.url === imageUrl);
+    setLightboxIndex(foundIndex >= 0 ? foundIndex : 0);
+    setLightboxOpen(true);
+  };
+
   return (
     <article className="w-full bg-background pb-20">
+      <ImageLightbox
+        images={allImages}
+        initialIndex={lightboxIndex}
+        open={lightboxOpen}
+        onOpenChange={setLightboxOpen}
+      />
+
       {/* Hero Section */}
       <section className="relative w-full h-[60vh] md:h-[70vh] flex items-end pb-12 px-4 sm:px-6 lg:px-8 bg-stone-900 overflow-hidden">
         {typeof tour.heroMedia?.url === "string" && tour.heroMedia.url ? (
-          <Image
-            src={tour.heroMedia.url}
-            alt={typeof tour.heroMedia.alt === "string" ? tour.heroMedia.alt : tour.title}
-            fill
-            priority
-            sizes="100vw"
-            className="object-cover opacity-75"
-          />
+          <div
+            onClick={() => openLightboxForImage(tour.heroMedia!.url!)}
+            className="absolute inset-0 cursor-pointer group"
+            role="button"
+            tabIndex={0}
+            aria-label="View hero image in lightbox"
+            onKeyDown={(e) => {
+              if (e.key === "Enter" || e.key === " ") {
+                e.preventDefault();
+                openLightboxForImage(tour.heroMedia!.url!);
+              }
+            }}
+          >
+            <Image
+              src={tour.heroMedia.url}
+              alt={typeof tour.heroMedia.alt === "string" ? tour.heroMedia.alt : tour.title}
+              fill
+              priority
+              sizes="100vw"
+              className="object-cover opacity-75 group-hover:scale-105 group-hover:opacity-85 transition-all duration-500"
+            />
+            <div className="absolute top-6 right-6 z-30 opacity-0 group-hover:opacity-100 transition-opacity bg-black/60 text-white rounded-full p-2.5 backdrop-blur-md border border-white/20">
+              <ZoomIn className="h-5 w-5" />
+            </div>
+          </div>
         ) : null}
-        <div className="absolute inset-0 bg-gradient-to-t from-stone-950 via-stone-900/40 to-transparent z-10" />
+        <div className="absolute inset-0 bg-gradient-to-t from-stone-950 via-stone-900/40 to-transparent z-10 pointer-events-none" />
         
-        <div className="relative z-20 w-full max-w-7xl mx-auto flex flex-col items-start gap-4">
+        <div className="relative z-20 w-full max-w-7xl mx-auto flex flex-col items-start gap-4 pointer-events-auto">
           <div className="flex flex-wrap gap-2">
             <Badge className="bg-primary text-white border-none uppercase tracking-widest text-xs px-3 py-1">
               {tour.tourType === "multi-day" ? "Multi-Day Safari" : "Day Tour"}
@@ -163,7 +229,7 @@ export function TourDetail({ tour }: { tour: Tour }) {
                               <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground block mb-2">Key Activities</span>
                               <div className="flex flex-wrap gap-2">
                                 {item.activities.map((a, i) => (
-                                  <Badge key={i} variant="secondary" className="bg-muted text-foreground text-xs font-normal">
+                                   <Badge key={i} variant="secondary" className="bg-muted text-foreground text-xs font-normal">
                                     {a.activity}
                                   </Badge>
                                 ))}
@@ -222,18 +288,50 @@ export function TourDetail({ tour }: { tour: Tour }) {
             {/* Media Gallery */}
             {tour.gallery && tour.gallery.length > 0 && (
               <section className="space-y-6 pt-4">
-                <h2 className="font-serif text-2xl sm:text-3xl font-bold text-primary">Experience Gallery</h2>
+                <div className="flex items-center justify-between">
+                  <h2 className="font-serif text-2xl sm:text-3xl font-bold text-primary">Experience Gallery</h2>
+                  <span className="text-xs text-muted-foreground font-medium uppercase tracking-wider">Click photo to enlarge</span>
+                </div>
                 <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
                   {tour.gallery.map((g, i) => (
-                    <div key={i} className="relative aspect-square rounded-lg overflow-hidden border border-border bg-muted group">
+                    <div
+                      key={i}
+                      onClick={() => {
+                        if (typeof g.media?.url === "string" && g.media.url) {
+                          openLightboxForImage(g.media.url);
+                        }
+                      }}
+                      onKeyDown={(e) => {
+                        if ((e.key === "Enter" || e.key === " ") && typeof g.media?.url === "string" && g.media.url) {
+                          e.preventDefault();
+                          openLightboxForImage(g.media.url);
+                        }
+                      }}
+                      role="button"
+                      tabIndex={0}
+                      aria-label={`View photo ${i + 1} enlarged`}
+                      className="relative aspect-square rounded-lg overflow-hidden border border-border bg-muted group cursor-pointer focus:outline-none focus:ring-2 focus:ring-secondary focus:ring-offset-2"
+                    >
                       {typeof g.media?.url === "string" && g.media.url ? (
-                        <Image
-                          src={g.media.url}
-                          alt={typeof g.media.alt === "string" ? g.media.alt : g.caption || tour.title}
-                          fill
-                          sizes="(max-width: 768px) 50vw, 33vw"
-                          className="object-cover group-hover:scale-105 transition-transform duration-300"
-                        />
+                        <>
+                          <Image
+                            src={g.media.url}
+                            alt={typeof g.media.alt === "string" ? g.media.alt : g.caption || tour.title}
+                            fill
+                            sizes="(max-width: 768px) 50vw, 33vw"
+                            className="object-cover group-hover:scale-105 transition-transform duration-300"
+                          />
+                          <div className="absolute inset-0 bg-black/0 group-hover:bg-black/30 transition-colors duration-200 flex items-center justify-center">
+                            <div className="opacity-0 group-hover:opacity-100 transition-opacity duration-200 bg-black/60 text-white rounded-full p-2.5 backdrop-blur-sm border border-white/20">
+                              <ZoomIn className="h-5 w-5" />
+                            </div>
+                          </div>
+                          {g.caption && (
+                            <div className="absolute bottom-0 inset-x-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent p-2 text-xs text-white truncate pointer-events-none">
+                              {g.caption}
+                            </div>
+                          )}
+                        </>
                       ) : null}
                     </div>
                   ))}
