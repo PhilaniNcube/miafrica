@@ -191,3 +191,47 @@ export function ReviewForm({
     </form>
   );
 }
+
+export function ReviewFormSkeleton() {
+  return (
+    <div className="space-y-6 animate-pulse">
+      <div className="space-y-2">
+        <div className="h-4 w-40 bg-slate-200 rounded" />
+        <div className="flex gap-2 pt-1">
+          {[1, 2, 3, 4, 5].map((i) => (
+            <div key={i} className="h-8 w-8 bg-slate-200 rounded" />
+          ))}
+        </div>
+      </div>
+      <div className="space-y-1.5">
+        <div className="h-4 w-32 bg-slate-200 rounded" />
+        <div className="h-11 bg-slate-200 rounded-md w-full" />
+      </div>
+      <div className="grid gap-4 sm:grid-cols-2">
+        <div className="space-y-1.5">
+          <div className="h-4 w-24 bg-slate-200 rounded" />
+          <div className="h-11 bg-slate-200 rounded-md w-full" />
+        </div>
+        <div className="space-y-1.5">
+          <div className="h-4 w-36 bg-slate-200 rounded" />
+          <div className="h-11 bg-slate-200 rounded-md w-full" />
+        </div>
+      </div>
+      <div className="grid gap-4 sm:grid-cols-2">
+        <div className="space-y-1.5">
+          <div className="h-4 w-36 bg-slate-200 rounded" />
+          <div className="h-11 bg-slate-200 rounded-md w-full" />
+        </div>
+        <div className="space-y-1.5">
+          <div className="h-4 w-44 bg-slate-200 rounded" />
+          <div className="h-11 bg-slate-200 rounded-md w-full" />
+        </div>
+      </div>
+      <div className="space-y-1.5">
+        <div className="h-4 w-48 bg-slate-200 rounded" />
+        <div className="h-32 bg-slate-200 rounded-md w-full" />
+      </div>
+      <div className="h-12 bg-slate-200 rounded-md w-full" />
+    </div>
+  );
+}

@@ -152,7 +152,7 @@ export function InquiryCustomerEmail({
               <Text className="text-[12px] leading-[18px] m-0">
                 <strong>MiAfrica Concierge Team</strong><br />
                 Victoria &amp; Alfred Waterfront, Cape Town, 8001, South Africa<br />
-                Direct: +27 (0) 21 555 0123 • Email: info@miafrica.co.za
+                Direct: +27 74 750 6555 • Email: info@miafrica.co.za
               </Text>
               <Text className="text-[11px] text-slate-400 mt-[12px] m-0">
                 © {new Date().getFullYear()} MiAfrica. All rights reserved.

@@ -73,8 +73,8 @@ export default function ContactPage() {
                     </div>
                     <div>
                       <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground block mb-1">Direct Phone</span>
-                      <a href="tel:+27215550123" className="font-medium text-primary hover:text-secondary transition-colors text-base">
-                        +27 (0) 21 555 0123
+                      <a href="tel:+27747506555" className="font-medium text-primary hover:text-secondary transition-colors text-base">
+                        +27 74 750 6555
                       </a>
                     </div>
                   </div>

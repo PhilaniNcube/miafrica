@@ -12,7 +12,7 @@ export function TravelAgencyJsonLd() {
     logo: `${baseUrl}/favicon.ico`,
     description:
       "Curated luxury travel experiences and tour operator across South Africa including Garden Route, Safaris, Winelands, and Cape Town.",
-    telephone: "+27 (0) 21 555 0123",
+    telephone: "+27 74 750 6555",
     email: "info@miafrica.co.za",
     address: {
       "@type": "PostalAddress",
@@ -128,7 +128,7 @@ export function ContactPageJsonLd() {
     mainEntity: {
       "@type": "TravelAgency",
       name: "MiAfrica",
-      telephone: "+27 (0) 21 555 0123",
+      telephone: "+27 74 750 6555",
       email: "info@miafrica.co.za",
     },
   };
