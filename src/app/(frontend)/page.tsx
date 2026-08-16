@@ -4,6 +4,10 @@ import Link from "next/link";
 import Image from "next/image";
 import { getFeaturedTours } from "@/features/tours/tours-queries";
 import { TourGrid, TourGridSkeleton } from "@/features/tours/components/tour-grid";
+import {
+  HomepageReviews,
+  HomepageReviewsSkeleton,
+} from "@/features/reviews/components/homepage-reviews";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
@@ -154,6 +158,11 @@ export default function HomePage() {
           <FeaturedTours />
         </Suspense>
       </section>
+
+      {/* Guest Reviews Section */}
+      <Suspense fallback={<HomepageReviewsSkeleton />}>
+        <HomepageReviews />
+      </Suspense>
 
       {/* CTA Section */}
       <section className="bg-primary text-white py-20 px-4 sm:px-6 lg:px-8 border-t border-border">
