@@ -45,12 +45,12 @@ function ReviewCardItem({ review }: { review: ReviewCard }) {
         </div>
 
         <div className="pt-4 border-t border-border/60 space-y-2 mt-auto">
-          <div className="flex items-center justify-between gap-2">
+          <div className="flex flex-col  gap-2">
             <span className="font-semibold text-xs text-primary truncate">
               {review.author}
             </span>
             {review.location && (
-              <span className="text-[11px] text-muted-foreground text-wrap flex items-center gap-1 shrink-0">
+              <span className="text-[11px] text-muted-foreground text-wrap flex items-start gap-1 shrink-0">
                 <MapPin className="h-3 w-3 text-secondary" />
                 {review.location}
               </span>
