@@ -13,11 +13,10 @@ function StarRating({ rating }: { rating: number }) {
       {Array.from({ length: 5 }).map((_, i) => (
         <Star
           key={i}
-          className={`h-4 w-4 ${
-            i < rating
-              ? 'text-amber-400 fill-amber-400'
-              : 'text-muted-foreground/30'
-          }`}
+          className={`h-4 w-4 ${i < rating
+            ? 'text-amber-400 fill-amber-400'
+            : 'text-muted-foreground/30'
+            }`}
         />
       ))}
     </div>
@@ -51,7 +50,7 @@ function ReviewCardItem({ review }: { review: ReviewCard }) {
               {review.author}
             </span>
             {review.location && (
-              <span className="text-[11px] text-muted-foreground flex items-center gap-1 shrink-0">
+              <span className="text-[11px] text-muted-foreground text-wrap flex items-center gap-1 shrink-0">
                 <MapPin className="h-3 w-3 text-secondary" />
                 {review.location}
               </span>
