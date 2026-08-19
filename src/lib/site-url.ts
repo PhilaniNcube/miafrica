@@ -1,4 +1,4 @@
 export function getSiteUrl(): string {
-  const url = process.env.NEXT_PUBLIC_SITE_URL || "https://www.miafrica.co.za";
+  const url = "https://www.miafrica.co.za";
   return url.replace(/\/$/, "");
 }
